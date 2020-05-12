@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import debounce from 'debounce';
+import {getEventBus} from './index';
 
 const QUIX_URL = window.quix ? quix.url : '//try.getquix.net';
 const jform_token = document.getElementById('jform_token');
@@ -110,7 +111,13 @@ class TxIcons extends Component {
   };
 
   selectSVG = svg => {
-    console.log(svg);
+    const svgIcon = this.icons.find(i => i.className === svg);
+    const file = {};
+    file.name = svgIcon.label;
+    file.className = svg;
+    file.type = 'SVG';
+
+    getEventBus().$emit('SELECT_FILE', file);
   };
 
   render() {
