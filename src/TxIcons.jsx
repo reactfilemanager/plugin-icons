@@ -16,24 +16,41 @@ class TxIcons extends Component {
       loadAll: false,
       loading: false,
       error: false,
+      selected: null
     };
   }
 
   componentDidMount = () => {
     this.setState({loading: true});
     this.loadIcons();
-    this.loadFromServer();
+    // this.loadFromServer();
   };
 
   loadIcons = () => {
     const cached = window.localStorage.getItem('icons');
-    const icons = cached ? JSON.parse(cached) : [];
+    // const icons = cached ? JSON.parse(cached) : [];
+    var icons = [];
+    if(cached){
+      icons = JSON.parse(cached)
+    }else{
+      this.loadFromServer();
+    }
+
     this.setState({icons});
   };
 
   loadFromServer = () => {
-    fetch(`${QUIX_URL}/index.php?option=com_quix&task=api.getIcons&${JFORM_TOKEN}=1`,
-      {credentials: 'same-origin'})
+    var iconUrl = '';
+    if(window.quix) iconUrl = `${QUIX_URL}/index.php?option=com_quix&task=api.getIcons&${JFORM_TOKEN}=1`;
+      // else iconUrl = `https://getquix.net/index.php?option=com_quixblocks&view=flaticons&format=json`;
+      else iconUrl = `${COM_JMEDIA_BASEURL}/administrator/index.php?option=com_jmedia&task=api.fontJSON`;
+    fetch(iconUrl,
+      {
+        credentials: 'same-origin',
+        cache: 'force-cache',
+        mode: "no-cors"
+      }
+    )
       .then(data => data.json())
       .then(icons => {
         if (icons.success == false) {
@@ -41,7 +58,7 @@ class TxIcons extends Component {
           this.setState({error: true});
         }
 
-        this.setState({loading: false});
+        this.setState({loading: false, error: false});
         const jsonStr = JSON.stringify(icons);
 
         this.setState({icons});
@@ -49,7 +66,7 @@ class TxIcons extends Component {
       })
       .catch(err => {
         console.log(err);
-        alert('Failed to load icons');
+        // alert('Failed to load icons');
         this.setState({loading: false});
       });
   };
@@ -116,7 +133,7 @@ class TxIcons extends Component {
     file.name = svgIcon.label;
     file.className = svg;
     file.type = 'SVG';
-
+    console.log('file', file);
     getEventBus().$emit('SELECT_FILE', file);
   };
 
@@ -128,17 +145,23 @@ class TxIcons extends Component {
     }
 
     return (
-      <div /*prefixCls="qxui-spin" spinning={this.state.loading}*/>
-        <div className="fm-toolbar">
+      // /*prefixCls="qxui-spin" spinning={this.state.loading}*
+      <div className="jmedia-plugin-icons">
+        <header className="fm-toolbar">
           <input defaultValue={this.state.query} onChange={this.handleQuery} placeholder="Search icons for..." />
-        </div>
+        </header>
 
-        <div id="fm-content-holder">
+        <div id="fm-content-holder" style={{
+          marginTop: '15px'
+        }}>
           <div id="fm-content">
             <div className="qx-row">
               {icons.map((icon, i) => {
                 return (
-                  <div key={`icon-${i}`} className="fm-grid-m" onDoubleClick={() => this.selectSVG(icon.className)}>
+                  <div key={`icon-${i}`} className={'fm-grid-m' + (this.state.selected == `icon-${i}` ? ' active' : '')} 
+                  onDoubleClick={() => this.selectSVG(icon.className)}
+                  onClick={(e) => this.setState({selected: `icon-${i}`})}
+                  >
                     <div className="fm-media">
                       <div className="fm-media__thumb">
                         <i className={icon.className} />
@@ -148,10 +171,21 @@ class TxIcons extends Component {
                   </div>);
               })}
             </div>
-            {this.state.loadAll ? null : <div className="qx-text-center qx-d-block qx-m-2">
-              <button className="qxui-btn qxui-btn-primary" onClick={this.loadAll}>Load All</button>
-            </div>}
           </div>
+          <div className="fm-footer">
+              <p style={{textAlign:'center'}}>
+                {this.state.loadAll ? null : 
+                <button className="qxui-btn qxui-btn-primary" onClick={this.loadAll}>Load All</button>
+                }
+              {
+                  // this.props.loading ? 
+                  // null
+                  // :
+                  //     <button className="qx-btn" onClick={this.props.loadMore}>Load More</button>
+              }
+              </p>
+          </div>
+          
         </div>
       </div>
     );
