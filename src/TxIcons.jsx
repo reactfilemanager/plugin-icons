@@ -131,9 +131,9 @@ class TxIcons extends Component {
     const svgIcon = this.icons.find(i => i.className === svg);
     const file = {};
     file.name = svgIcon.label;
-    file.className = svg;
-    file.type = 'SVG';
-    console.log('file', file);
+    file.svg = svg;
+    file.type = 'svg';
+    
     getEventBus().$emit('SELECT_FILE', file);
   };
 
