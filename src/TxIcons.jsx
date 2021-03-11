@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import debounce from 'debounce';
 import {getEventBus} from './index';
 
-const QUIX_URL = window.quix ? quix.url : '//try.getquix.net';
+const QUIX_URL = window.quix ? quix.url : '//getquix.net';
 const jform_token = document.getElementById('jform_token');
 const JFORM_TOKEN = jform_token ? jform_token.name : null;
 
@@ -16,7 +16,7 @@ class TxIcons extends Component {
       loadAll: false,
       loading: false,
       error: false,
-      selected: null
+      selected: null,
     };
   }
 
@@ -27,12 +27,13 @@ class TxIcons extends Component {
   };
 
   loadIcons = () => {
-    const cached = window.localStorage.getItem('icons');
+    const cached = window.localStorage.getItem('jmedia-icons');
     // const icons = cached ? JSON.parse(cached) : [];
     var icons = [];
-    if(cached){
-      icons = JSON.parse(cached)
-    }else{
+    if (cached) {
+      icons = JSON.parse(cached);
+    }
+    else {
       this.loadFromServer();
     }
 
@@ -41,34 +42,46 @@ class TxIcons extends Component {
 
   loadFromServer = () => {
     var iconUrl = '';
-    if(window.quix) iconUrl = `${QUIX_URL}/index.php?option=com_quix&task=api.getIcons&${JFORM_TOKEN}=1`;
-      // else iconUrl = `https://getquix.net/index.php?option=com_quixblocks&view=flaticons&format=json`;
-      else iconUrl = `${COM_JMEDIA_BASEURL}/administrator/index.php?option=com_jmedia&task=api.fontJSON`;
+    if (window.quix) {
+      /**
+       * never gonnal call as inside iframe
+       * previous iconUrl = `https://getquix.net/index.php?option=com_quixblocks&view=flaticons&format=json`;
+       * @type {string}
+       */
+      iconUrl = `${QUIX_URL}/index.php?option=com_quix&task=api.getIcons&${JFORM_TOKEN}=1`;
+    }
+    else {
+      iconUrl = `${COM_JMEDIA_BASEURL}index.php?option=com_jmedia&task=api.fontJSON&asset=com_quix&author=${COM_JMEDIA_AUTHOR}&format=json`;
+    }
+
     fetch(iconUrl,
-      {
-        credentials: 'same-origin',
-        cache: 'force-cache',
-        mode: "no-cors"
-      }
+        {
+          credentials: 'same-origin',
+          cache: 'force-cache',
+          mode: 'no-cors',
+        },
     )
-      .then(data => data.json())
-      .then(icons => {
-        if (icons.success == false) {
-          icons = [];
-          this.setState({error: true});
-        }
+        .then(data => data.json())
+        .then(icons => {
+          if (icons.success == false) {
+            icons = [];
+            this.setState({error: true});
+          }
 
-        this.setState({loading: false, error: false});
-        const jsonStr = JSON.stringify(icons);
+          this.setState({loading: false, error: false});
+          const jsonStr = JSON.stringify(icons);
 
-        this.setState({icons});
-        window.localStorage.setItem('icons', jsonStr);
-      })
-      .catch(err => {
-        console.log(err);
-        // alert('Failed to load icons');
-        this.setState({loading: false});
-      });
+          this.setState({icons});
+
+          if (icons) {
+            window.localStorage.setItem('jmedia-icons', jsonStr);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          // alert('Failed to load icons');
+          this.setState({loading: false});
+        });
   };
 
   hashCode = string => {
@@ -133,7 +146,7 @@ class TxIcons extends Component {
     file.name = svgIcon.label;
     file.svg = svg;
     file.type = 'svg';
-    
+
     getEventBus().$emit('SELECT_FILE', file);
   };
 
@@ -145,49 +158,49 @@ class TxIcons extends Component {
     }
 
     return (
-      // /*prefixCls="qxui-spin" spinning={this.state.loading}*
-      <div className="jmedia-plugin-icons">
-        <header className="fm-toolbar">
-          <input defaultValue={this.state.query} onChange={this.handleQuery} placeholder="Search icons for..." />
-        </header>
+        // /*prefixCls="qxui-spin" spinning={this.state.loading}*
+        <div className="jmedia-plugin-icons">
+          <header className="fm-toolbar">
+            <input defaultValue={this.state.query} onChange={this.handleQuery} placeholder="Search icons for..." />
+          </header>
 
-        <div id="fm-content-holder" style={{
-          marginTop: '15px'
-        }}>
-          <div id="fm-content">
-            <div className="qx-row">
-              {icons.map((icon, i) => {
-                return (
-                  <div key={`icon-${i}`} className={'fm-grid-m' + (this.state.selected == `icon-${i}` ? ' active' : '')} 
-                  onDoubleClick={() => this.selectSVG(icon.className)}
-                  onClick={(e) => this.setState({selected: `icon-${i}`})}
-                  >
-                    <div className="fm-media">
-                      <div className="fm-media__thumb">
-                        <i className={icon.className} />
-                      </div>
-                      <div className="fm-media__caption"><span>{icon.label}</span></div>
-                    </div>
-                  </div>);
-              })}
+          <div id="fm-content-holder" style={{
+            marginTop: '15px',
+          }}>
+            <div id="fm-content">
+              <div className="qx-row">
+                {icons.map((icon, i) => {
+                  return (
+                      <div key={`icon-${i}`} className={'fm-grid-m' + (this.state.selected == `icon-${i}` ? ' active' : '')}
+                           onDoubleClick={() => this.selectSVG(icon.className)}
+                           onClick={(e) => this.setState({selected: `icon-${i}`})}
+                      >
+                        <div className="fm-media">
+                          <div className="fm-media__thumb">
+                            <i className={icon.className} />
+                          </div>
+                          <div className="fm-media__caption"><span>{icon.label}</span></div>
+                        </div>
+                      </div>);
+                })}
+              </div>
             </div>
-          </div>
-          <div className="fm-footer">
-              <p style={{textAlign:'center'}}>
-                {this.state.loadAll ? null : 
-                <button className="qxui-btn qxui-btn-primary" onClick={this.loadAll}>Load All</button>
+            <div className="fm-footer">
+              <p style={{textAlign: 'center'}}>
+                {this.state.loadAll ? null :
+                    <button className="qxui-btn qxui-btn-primary" onClick={this.loadAll}>Load All</button>
                 }
-              {
-                  // this.props.loading ? 
+                {
+                  // this.props.loading ?
                   // null
                   // :
                   //     <button className="qx-btn" onClick={this.props.loadMore}>Load More</button>
-              }
+                }
               </p>
+            </div>
+
           </div>
-          
         </div>
-      </div>
     );
   }
 }
