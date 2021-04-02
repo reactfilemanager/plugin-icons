@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import debounce from 'debounce';
 import {getEventBus} from './index';
+import {Button} from 'theme-ui';
 
 const QUIX_URL = window.quix ? quix.url : '//getquix.net';
 const jform_token = document.getElementById('jform_token');
@@ -41,6 +42,7 @@ class TxIcons extends Component {
   };
 
   loadFromServer = () => {
+
     var iconUrl = '';
     if (window.quix) {
       /**
@@ -51,7 +53,9 @@ class TxIcons extends Component {
       iconUrl = `${QUIX_URL}/index.php?option=com_quix&task=api.getIcons&${JFORM_TOKEN}=1`;
     }
     else {
-      iconUrl = `${COM_JMEDIA_BASEURL}index.php?option=com_jmedia&task=api.fontJSON&asset=com_quix&author=${COM_JMEDIA_AUTHOR}&format=json`;
+
+      // iconUrl = `${COM_JMEDIA_BASEURL}index.php?option=com_jmedia&task=api.fontJSON&asset=com_quix&author=${COM_JMEDIA_AUTHOR}&format=json`;
+      iconUrl = `${COM_JMEDIA_BASEURL}media/com_jmedia/json/qx-fonts.json`;
     }
 
     fetch(iconUrl,
@@ -126,9 +130,17 @@ class TxIcons extends Component {
   };
 
   get icons() {
-    const icons = this.state.icons.filter(icon => {
+
+    let icons = this.state.icons.filter(icon => {
       return this.fuzzySearch(this.state.query, icon.name);
     });
+
+    let filter = this.state.filter;
+    if (filter) {
+      icons = icons.filter(item => item.group === filter);
+
+      console.log(icons);
+    }
 
     if (this.state.loadAll) {
       return icons;
@@ -141,7 +153,7 @@ class TxIcons extends Component {
   };
 
   selectSVG = svg => {
-    const svgIcon = this.icons.find(i => i.className === svg);
+    const svgIcon = this.icons.find(i => i.class === svg);
     const file = {};
     file.name = svgIcon.label;
     file.svg = svg;
@@ -160,8 +172,23 @@ class TxIcons extends Component {
     return (
         // /*prefixCls="qxui-spin" spinning={this.state.loading}*
         <div className="jmedia-plugin-icons">
-          <header className="fm-toolbar">
+          <header className="fm-toolbar qx-flex qx-flex-beetween" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}>
             <input defaultValue={this.state.query} onChange={this.handleQuery} placeholder="Search icons for..." />
+            <div className="qx-flex qx-width" style={{
+              display: 'flex',
+            }}>
+              <Button variant={this.state.filter === '' ? 'primary' : 'secondary'} className="qxui-button"
+                      onClick={() => this.setState({'filter': ''})}>All</Button>
+              <Button variant={this.state.filter === 'ionicon' ? 'primary' : 'secondary'} className="qxui-button"
+                      onClick={() => this.setState({'filter': 'ionicon'})}>IonIcon</Button>
+              <Button variant={this.state.filter === 'bootstrap' ? 'primary' : 'secondary'} className="qxui-button"
+                      onClick={() => this.setState({'filter': 'bootstrap'})}>Bootstrap</Button>
+              <Button variant={this.state.filter === 'font-awesome' ? 'primary' : 'secondary'} className="qxui-button"
+                      onClick={() => this.setState({'filter': 'font-awesome'})}>Font-Awesome</Button>
+            </div>
           </header>
 
           <div id="fm-content-holder" style={{
@@ -172,7 +199,7 @@ class TxIcons extends Component {
                 {icons.map((icon, i) => {
                   return (
                       <div key={`icon-${i}`} className={'fm-grid-m' + (this.state.selected == `icon-${i}` ? ' active' : '')}
-                           onDoubleClick={() => this.selectSVG(icon.className)}
+                           onDoubleClick={() => this.selectSVG(icon.class)}
                            onClick={(e) => this.setState({selected: `icon-${i}`})}
                       >
                         <div className="fm-media">
@@ -189,12 +216,6 @@ class TxIcons extends Component {
               <p style={{textAlign: 'center'}}>
                 {this.state.loadAll ? null :
                     <button className="qxui-btn qxui-btn-primary" onClick={this.loadAll}>Load All</button>
-                }
-                {
-                  // this.props.loading ?
-                  // null
-                  // :
-                  //     <button className="qx-btn" onClick={this.props.loadMore}>Load More</button>
                 }
               </p>
             </div>
