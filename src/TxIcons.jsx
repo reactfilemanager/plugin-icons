@@ -164,6 +164,7 @@ class TxIcons extends Component {
 
   render() {
     const icons = this.icons;
+    let iconGroups = new Array(...new Set(this.state.icons.map(icon => icon.group)));
 
     if (this.state.error && icons.length === 0) {
       return <h2 className="text-center"> Something Wrong. Please talk with QUIX developer </h2>;
@@ -177,17 +178,20 @@ class TxIcons extends Component {
             justifyContent: 'space-between',
           }}>
             <input defaultValue={this.state.query} onChange={this.handleQuery} placeholder="Search icons for..." />
-            <div className="qx-flex qx-width" style={{
+            <div className="qx-flex qx-flex-right qx-width" style={{
               display: 'flex',
             }}>
+              {/*group*/}
               <Button variant={this.state.filter === '' ? 'primary' : 'secondary'} className="qxui-button"
                       onClick={() => this.setState({'filter': ''})}>All</Button>
-              <Button variant={this.state.filter === 'ionicon' ? 'primary' : 'secondary'} className="qxui-button"
-                      onClick={() => this.setState({'filter': 'ionicon'})}>IonIcon</Button>
-              <Button variant={this.state.filter === 'bootstrap' ? 'primary' : 'secondary'} className="qxui-button"
-                      onClick={() => this.setState({'filter': 'bootstrap'})}>Bootstrap</Button>
-              <Button variant={this.state.filter === 'font-awesome' ? 'primary' : 'secondary'} className="qxui-button"
-                      onClick={() => this.setState({'filter': 'font-awesome'})}>Font-Awesome</Button>
+
+              {
+                iconGroups.map(item, index => {
+                  return <Button key={index} variant={this.state.filter === item ? 'primary' : 'secondary'} className="qxui-button"
+                                 onClick={() => this.setState({'filter': item})}>{item}</Button>
+                })
+              }
+
             </div>
           </header>
 
