@@ -186,7 +186,7 @@ class TxIcons extends Component {
                       onClick={() => this.setState({'filter': ''})}>All</Button>
 
               {
-                iconGroups.map(item, index => {
+                iconGroups.map((item, index) => {
                   return <Button key={index} variant={this.state.filter === item ? 'primary' : 'secondary'} className="qxui-button"
                                  onClick={() => this.setState({'filter': item})}>{item}</Button>
                 })
