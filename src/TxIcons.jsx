@@ -158,7 +158,6 @@ class TxIcons extends Component {
     file.name = svgIcon.label;
     file.svg = svg;
     file.type = 'svg';
-    debugger;
     getEventBus().$emit('SELECT_FILE', file);
   };
 
