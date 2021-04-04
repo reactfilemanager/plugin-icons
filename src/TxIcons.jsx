@@ -153,12 +153,12 @@ class TxIcons extends Component {
   };
 
   selectSVG = svg => {
-    const svgIcon = this.icons.find(i => i.class === svg);
+    const svgIcon = this.icons.find(i => i.className === svg);
     const file = {};
     file.name = svgIcon.label;
     file.svg = svg;
     file.type = 'svg';
-
+    debugger;
     getEventBus().$emit('SELECT_FILE', file);
   };
 
@@ -203,7 +203,7 @@ class TxIcons extends Component {
                 {icons.map((icon, i) => {
                   return (
                       <div key={`icon-${i}`} className={'fm-grid-m' + (this.state.selected == `icon-${i}` ? ' active' : '')}
-                           onDoubleClick={() => this.selectSVG(icon.class)}
+                           onDoubleClick={() => this.selectSVG(icon.className)}
                            onClick={(e) => this.setState({selected: `icon-${i}`})}
                       >
                         <div className="fm-media">
