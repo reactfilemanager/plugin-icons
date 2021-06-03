@@ -24,12 +24,11 @@ class TxIcons extends Component {
   componentDidMount = () => {
     this.setState({loading: true});
     this.loadIcons();
-    // this.loadFromServer();
   };
 
   loadIcons = () => {
     const cached = window.localStorage.getItem('jmedia-icons');
-    // const icons = cached ? JSON.parse(cached) : [];
+    /*const icons = cached ? JSON.parse(cached) : [];*/
     var icons = [];
     if (cached) {
       icons = JSON.parse(cached);
@@ -43,20 +42,23 @@ class TxIcons extends Component {
 
   loadFromServer = () => {
 
+    /*
+        *
+         * never gonnal call as inside iframe
+         * previous iconUrl = `https://getquix.net/index.php?option=com_quixblocks&view=flaticons&format=json`;
+         * @type {string}
+         *
     var iconUrl = '';
     if (window.quix) {
-      /**
-       * never gonnal call as inside iframe
-       * previous iconUrl = `https://getquix.net/index.php?option=com_quixblocks&view=flaticons&format=json`;
-       * @type {string}
-       */
-      iconUrl = `${QUIX_URL}/index.php?option=com_quix&task=api.getIcons&${JFORM_TOKEN}=1`;
+        iconUrl = `${QUIX_URL}/index.php?option=com_quix&task=api.getIcons&${JFORM_TOKEN}=1`;
     }
     else {
-
-      // iconUrl = `${COM_JMEDIA_BASEURL}index.php?option=com_jmedia&task=api.fontJSON&asset=com_quix&author=${COM_JMEDIA_AUTHOR}&format=json`;
-      iconUrl = `${COM_JMEDIA_BASEURL}media/com_jmedia/json/qx-fonts.json`;
+        iconUrl = `${COM_JMEDIA_BASEURL}index.php?option=com_jmedia&task=api.fontJSON&asset=com_quix&author=${COM_JMEDIA_AUTHOR}&format=json`;
+        iconUrl = `${COM_JMEDIA_BASEURL}media/com_jmedia/json/qx-fonts.json`;
     }
+    */
+
+    let iconUrl = `${COM_JMEDIA_BASEURL}index.php?option=com_jmedia&task=api.fontJSON&asset=com_quix&author=${COM_JMEDIA_AUTHOR}&format=json`;
 
     fetch(iconUrl,
         {
@@ -83,7 +85,6 @@ class TxIcons extends Component {
         })
         .catch(err => {
           console.log(err);
-          // alert('Failed to load icons');
           this.setState({loading: false});
         });
   };
@@ -170,7 +171,7 @@ class TxIcons extends Component {
     }
 
     return (
-        // /*prefixCls="qxui-spin" spinning={this.state.loading}*
+        /*prefixCls="qxui-spin" spinning={this.state.loading}*/
         <div className="jmedia-plugin-icons">
           <header className="fm-toolbar qx-flex qx-flex-beetween" style={{
             display: 'flex',
